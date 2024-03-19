@@ -30,9 +30,11 @@ public class GameManager : MonoBehaviour
         [SerializeField] public Image computerImage;
 
         [Header("Buttons")]
+        //버튼 제어용 스크립트 가져오기
         [SerializeField] public Buttons _buttons;
 
         [Header("Result UI")]
+        //승패 결과창
         [SerializeField] public GameObject resultUI;
     }
 
@@ -178,6 +180,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GameTimer());
     }
 
+    //버튼 클릭시 플레이어 선택지 지정
     public void SetPlayerSelect(RPS _select)
     {
         playerSelect = _select;
