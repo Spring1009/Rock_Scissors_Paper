@@ -406,19 +406,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 213821097}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1984653887}
-        m_TargetAssemblyTypeName: Buttons, Assembly-CSharp
-        m_MethodName: OnClickPaperButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &213821097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -613,19 +601,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 458723251}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1984653887}
-        m_TargetAssemblyTypeName: Buttons, Assembly-CSharp
-        m_MethodName: OnClickScissorsButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &458723251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,7 +684,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 497d60518c810b344b2dadb5b8d74f0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerSelect: 0
   _gameResources:
     scoreText: {fileID: 1467282925}
     timerText: {fileID: 140099114}
@@ -720,6 +695,7 @@ MonoBehaviour:
     computerImage: {fileID: 1516327703}
     _buttons: {fileID: 1984653887}
     resultUI: {fileID: 1599049420}
+  _gameState: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -893,19 +869,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 773067941}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1984653887}
-        m_TargetAssemblyTypeName: Buttons, Assembly-CSharp
-        m_MethodName: OnClickRockButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &773067941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1548,10 +1512,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16f9dc1e0faa44f40bd9be281c4a553d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectButtons:
-  - {fileID: 458723250}
-  - {fileID: 773067940}
-  - {fileID: 213821096}
+  rockButton: {fileID: 773067940}
+  paperButton: {fileID: 213821096}
+  scissorsButton: {fileID: 458723250}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

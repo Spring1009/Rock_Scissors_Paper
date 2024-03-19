@@ -4,13 +4,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
 
-    public RPS playerSelect;
 
-    private RPS computerSelect;
+    private RPS playerCard;
+    private RPS computerCard;
 
     [System.Serializable]
     private class GameResources
@@ -38,11 +39,24 @@ public class GameManager : MonoBehaviour
         [SerializeField] public GameObject resultUI;
     }
 
+    // 리소스 및 각종 컴포넌트들 저장용 클래스
     [SerializeField] private GameResources _gameResources;
+
+    //FSM용 상태 저장 변수
+    //근데 FSM 이렇게쓰는게 맞는건지 모르겠음
+    [SerializeField] private State _gameState;
     
+    //플레이어, 컴퓨터 점수 저장용
     private int playerScore = 0;
     private int computerScore = 0;
 
+    private readonly float endTime = 10f;       //타이머 시간 지정(C#은 define이 없음....)
+
+    //Timer 변수
+    private float timer;    
+
+    //Singleton 패턴
+    #region Singleton
     private void Awake()
     {
         if(_instance == null)
@@ -57,6 +71,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    
     public static GameManager Instance
     {
         get
@@ -69,42 +85,64 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    #endregion
+    private void Update()
+    {
+        switch(_gameState)
+        {
+            case State.TIMER:
+                timer -= Time.deltaTime;
+                _gameResources.timerText.text = ((int)timer).ToString();
+                if (timer <= 0f)
+                {
+                    //타이머 작동 종료시 결과 상태로 전환
+                    _gameState = State.RESULT;
+                }
+                break;
+            case State.RESULT:
+                EndTimer();
+                break;
+            default:
+                break;
+        }
+
+    }
+
     private void Start()
     {
+        //점수 텍스트 초기화
         _gameResources.scoreText.text = playerScore.ToString() + " : " + computerScore.ToString();
+        //게임 시작
         StartGame();
     }
-
-    private void SetComputerSelect()
+    private void StartGame()
     {
-        //랜덤함수 시드 변경
-        float temp = Random.Range(0f, 1f) * 10000;
-        Random.InitState((int)temp);
+        //결과창 UI 비활성화
+        _gameResources.resultUI.SetActive(false);
 
-        //컴퓨터 랜덤 선택
-        computerSelect = (RPS)(Random.Range(0, 3));
+        //이미지 둘 다 물음표로 초기화
+        _gameResources.computerImage.sprite = _gameResources.questionMarkSprite;
+        _gameResources.playerImage.sprite = _gameResources.questionMarkSprite;
+
+        //컴퓨터 랜덤선택
+        SetRandomSelect(computerCard);
+
+        _gameResources._buttons.SetEnable();
+        timer = endTime;
+        //현재 상태 : 타이머 작동
+        _gameState = State.TIMER;
     }
-
-    private IEnumerator GameTimer()
-    {
-        //타이머
-        for(int i = 10; i > 0; i--)
-        {
-            _gameResources.timerText.text = i.ToString();
-            yield return new WaitForSeconds(1f);
-        }
-        _gameResources.timerText.text = "0";
-
-        //종료시 게임 종료 함수 호출
-        EndTimer();
-    }
-
+    
     private void EndTimer()
     {
+        //현재 상태 : 대기중
+        _gameState = State.WAIT;
+
         //버튼 비활성화
         _gameResources._buttons.SetDisable();
+
         // 컴퓨터 선택에 따른 이미지 변경
-        switch (computerSelect)
+        switch (computerCard)
         {
             case RPS.ROCK:
                 _gameResources.computerImage.sprite = _gameResources.rockSprite;
@@ -120,14 +158,9 @@ public class GameManager : MonoBehaviour
         //플레이어가 버튼을 안눌렀을 경우 랜덤선택 후 결과 표시
         if(_gameResources.playerImage.sprite == _gameResources.questionMarkSprite)
         {
-            //랜덤함수 시드 변경
-            float temp = Random.Range(0f, 1f) * 10000;
-            Random.InitState((int)temp);
+            SetRandomSelect(playerCard);
 
-            //플레이어 랜덤 선택
-            playerSelect = (RPS)(Random.Range(0, 3));
-
-            switch (playerSelect)
+            switch (playerCard)
             {
                 case RPS.ROCK:
                     _gameResources.playerImage.sprite = _gameResources.rockSprite;
@@ -141,49 +174,36 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        //결과 UI 표시
+        //결과 UI Active
         _gameResources.resultUI.SetActive(true);
 
-        //승패판정
-        if ((int)playerSelect - (int)computerSelect == 1 || (int)playerSelect - (int)computerSelect == -2)
+        //enum 타입의 인덱스 뺄셈을 통해 승패 판정
+        switch((int)playerCard - (int)computerCard)
         {
-            _gameResources.resultUI.transform.GetComponentInChildren<TMP_Text>().text = "Player WIn";
-            playerScore++;
+            case 1:
+            case -2:
+                _gameResources.resultUI.transform.GetComponentInChildren<TMP_Text>().text = "Player WIn";
+                playerScore++;
+                break;
+            case 0:
+                _gameResources.resultUI.transform.GetComponentInChildren<TMP_Text>().text = "Draw";
+                break;
+            default:
+                _gameResources.resultUI.transform.GetComponentInChildren<TMP_Text>().text = "computer WIn";
+                computerScore++;
+                break;
         }
-        else if((int)playerSelect - (int)computerSelect == 0)
-        {
-            _gameResources.resultUI.transform.GetComponentInChildren<TMP_Text>().text = "Draw";
-        }
-        else
-        {
-            _gameResources.resultUI.transform.GetComponentInChildren<TMP_Text>().text = "computer WIn";
-            computerScore++;
-        }
-        Debug.Log(_gameResources.resultUI.transform.GetComponentInChildren<TMP_Text>().text);
-        _gameResources.scoreText.text = playerScore.ToString() + " : " + computerScore.ToString();
+
+        _gameResources.scoreText.text = $"{playerScore} : {computerScore}";
 
         //결과 표시 3초 후 게임 다시시작
-        Invoke("StartGame", 3f);
-    }
-
-    private void StartGame()
-    {
-        _gameResources.resultUI.SetActive(false);
-        //이미지 둘 다 물음표로 초기화
-        _gameResources.computerImage.sprite = _gameResources.questionMarkSprite;
-        _gameResources.playerImage.sprite = _gameResources.questionMarkSprite;
-
-        //컴퓨터 랜덤선택
-        SetComputerSelect();
-
-        _gameResources._buttons.SetEnable();
-        StartCoroutine(GameTimer());
+        Invoke(nameof(StartGame), 3f);
     }
 
     //버튼 클릭시 플레이어 선택지 지정
     public void SetPlayerSelect(RPS _select)
     {
-        playerSelect = _select;
+        playerCard = _select;
         switch (_select)
         {
             case RPS.ROCK:
@@ -198,10 +218,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    private void SetRandomSelect(RPS _rps)
+    {
+        //랜덤함수 시드 변경
+        float temp = Random.Range(0f, 1f) * 10000;
+        Random.InitState((int)temp);
+
+        //컴퓨터 랜덤 선택
+        _rps = (RPS)(Random.Range(0, 3));
+    }
+
     public enum RPS
     {
         ROCK,
         PAPER,
         SCISSORS
+    }
+
+    public enum State
+    {
+        TIMER,
+        RESULT,
+        WAIT
     }
 }
